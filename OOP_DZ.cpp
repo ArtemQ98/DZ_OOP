@@ -30,52 +30,63 @@ class sectionClass
     friend void Start(sectionClass* value);
 
 protected:
-    int square;
-
+    
+    int squareSection;
     int quantityBuildings;
     vector<building_type> buildingsOnSection;
     
 public:
+    
     class houseClass
     { 
         friend sectionClass;
         vector<vector<room_type> > rooms;
         vector<int> heightRoof;
         bool oven;
-        int square;
+        int squareHouse; 
         int quantityFloors;
         int quantityRooms;
 
     public:
-        houseClass StartHouse();
+        houseClass StartHouse(sectionClass* value);
         
         void PrintHouse();
 
         int GetSquare()
         {
-            return this->square;
+            return this->squareHouse;
         }
 
     };
 
     class garageClass
     {
-        int square;
+        int squareGarage;
 
     public:
-        garageClass StartGarage();
+        garageClass StartGarage(sectionClass* value);
 
         void PrintGarage();
 
         int GetSquare()
         {
-            return this->square;
+            return this->squareGarage;
         }
     };
 
     class shedClass
     {
         int square;
+
+    public:
+        garageClass StartShed();
+
+        void PrintShed();
+
+        int GetSquare()
+        {
+            return this->square;
+        }
     };
 
     class saunaClass
@@ -85,28 +96,29 @@ public:
 
     void Print()
     {
+        int quantityHouse{ 0 };
+        int quantityGarage{ 0 };
+        cout << "Площадь участка: " << squareSection << "м^2" << endl;
         for (int i = 0; i < quantityBuildings; i++)
         {
+            cout << endl;
             if (buildingsOnSection[i] == building_type::Дом)
             {
-                for (int j = 0; j < size(houses); j++)
-                {
-                    cout << "-------- Дом " << j+1 << " --------" << endl;
-                    
-                    houses[j].PrintHouse();
-                }
+                cout << "-------- Дом " << i + 1 << " --------" << endl;
+
+                houses[quantityHouse].PrintHouse();
+                quantityHouse++;
                 
             }
             else if (buildingsOnSection[i] == building_type::Гараж)
             {
-                for (int j = 0; j < size(garages); j++)
-                {
-                    cout << "------- Гараж " << j + 1 << " -------" << endl;
+                cout << "------- Гараж " << i + 1 << " -------" << endl;
 
-                    garages[j].PrintGarage();
-                }
+                garages[quantityGarage].PrintGarage();
+                quantityGarage+=1;
+
             }
-     
+            
         }
     }
 
@@ -137,17 +149,17 @@ void Start(sectionClass *value)
     {
         while (true)
         {
-            cout << "Постройка " << i + 1 << ": ";
+            cout << endl << "Постройка " << i + 1 << ": ";
             cin >> build;
             if (build == "Дом" || build == "дом")
             {
-                value->houses.push_back(value->temp_house->StartHouse()); 
+                value->houses.push_back(value->temp_house->StartHouse(value));
                 value->buildingsOnSection.push_back(building_type::Дом);
                 break;
             }
             else if (build == "Гараж" || build == "гараж")
             {
-                value->garages.push_back(value->temp_garage->StartGarage());
+                value->garages.push_back(value->temp_garage->StartGarage(value));
                 value->buildingsOnSection.push_back(building_type::Гараж);
                 break;
             }
@@ -181,28 +193,32 @@ int main()
     for (int i = 0; i < quantitySectios; i++)
     {
         sectionClass *sectioni = new sectionClass;
-        cout << "======== УЧАСТОК " << i + 1 << " ========" << endl;
+        cout << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
         Start(sectioni);
         section.push_back(*sectioni);
         delete sectioni;
     }
 
-    cout << endl << endl << endl << "========Вывод========" << endl << endl << endl;
+    cout << endl << endl << "========Вывод========" << endl << endl;
 
     for (int i = 0; i < size(section); i++)
     {
         
-        cout << "======== УЧАСТОК " << i+1 << " ========" << endl;
+        cout << endl << endl << "======== УЧАСТОК " << i+1 << " ========" << endl;
         section[i].Print();
 
     }
 
-    cout << endl << endl << endl << "======== Общая площадь ========" << endl << endl << endl;
+    cout << endl << endl << endl << "======== Общая площадь ========" << endl;
     for (int i = 0; i < size(section); i++)
     {
         for (int j = 0; j < size(section[i].houses); j++)
         {
             generalSquare += section[i].houses[j].GetSquare();
+        }
+        for (int j = 0; j < size(section[i].garages); j++)
+        {
+            generalSquare += section[i].garages[j].GetSquare();
         }
     }
     cout << generalSquare << "м^2" << endl;
@@ -211,12 +227,13 @@ int main()
 
 
 
-sectionClass::houseClass sectionClass::houseClass::StartHouse()
+sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* value)
 {
     houseClass User_house;
 
     cout << "Площадь: ";
-    cin >> User_house.square;
+    cin >> User_house.squareHouse;
+    
     string ovenInHouse_element;
     while (true)
     {
@@ -316,18 +333,17 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse()
                     cout << "Я не знаю такой комнаты" << endl;
                     continue;
                 }
-            }
-            
-
-            
+            }   
         }
     }
+    value->squareSection += User_house.squareHouse;
     return User_house;
 }
 
 void sectionClass::houseClass::PrintHouse()
 {
-    cout << "Площадь дома: " << this->square << "м^2" << endl;
+    
+    cout << "Площадь дома: " << this->squareHouse << "м^2" << endl;
     if (this->oven)
     {
         cout << "В доме имеется печь с трубой" << endl;
@@ -393,15 +409,16 @@ void sectionClass::houseClass::PrintHouse()
     }
 }
 
-sectionClass::garageClass sectionClass::garageClass::StartGarage()
+sectionClass::garageClass sectionClass::garageClass::StartGarage(sectionClass* value)
 {
     garageClass User_garage;
     cout << "Площадь: ";
-    cin >> User_garage.square;
+    cin >> User_garage.squareGarage;
+    value->squareSection += User_garage.squareGarage;
     return User_garage; 
 }
 
 void sectionClass::garageClass::PrintGarage()
 {
-    cout << "Площадь гаража: " << this->square << endl;
+    cout << "Площадь гаража: " << this->squareGarage << endl;
 }
