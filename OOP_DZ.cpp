@@ -28,6 +28,7 @@ class sectionClass
 {
 
     friend void Start(sectionClass* value);
+    friend void UpdateSection(vector<sectionClass>& section, int& generalSquare);
 
 protected:
     
@@ -94,7 +95,7 @@ public:
         int square;
     };
 
-    void Print()
+    void Print(int &generalSquare)
     {
         int quantityHouse{ 0 };
         int quantityGarage{ 0 };
@@ -107,6 +108,7 @@ public:
                 cout << "-------- Дом " << i + 1 << " --------" << endl;
 
                 houses[quantityHouse].PrintHouse();
+                generalSquare += houses[quantityHouse].GetSquare();
                 quantityHouse++;
                 
             }
@@ -115,11 +117,11 @@ public:
                 cout << "------- Гараж " << i + 1 << " -------" << endl;
 
                 garages[quantityGarage].PrintGarage();
+                generalSquare += garages[quantityGarage].GetSquare();
                 quantityGarage+=1;
+            }        }
+        
 
-            }
-            
-        }
     }
 
     
@@ -140,8 +142,6 @@ public:
 void Start(sectionClass *value)
 {
 
-    bool okStep{ true };
-    int sizeCin;
     cout << "Постройки кол-во: ";
     cin >> value->quantityBuildings;
     string build;
@@ -174,7 +174,54 @@ void Start(sectionClass *value)
     }
 }
 
+void StartSection(int &quantitySections, int generalSquare, vector<sectionClass> &section)
+{
+    for (int i = 0; i < quantitySections; i++)
+    {
+        sectionClass* sectioni = new sectionClass;
+        cout << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
+        Start(sectioni);
+        section.push_back(*sectioni);
+        delete sectioni;
+    }
 
+    cout << endl << endl << "========Вывод========" << endl << endl;
+
+    for (int i = 0; i < size(section); i++)
+    {
+
+        cout << endl << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
+        section[i].Print(generalSquare);
+    }
+    cout << endl << endl << endl << "======== Общая площадь ========" << endl;
+    cout << generalSquare << "м^2" << endl << endl;
+}
+
+void UpdateSection(vector<sectionClass> &section, int &generalSquare)
+{
+    cout << "Что вы хотите обновить? (введите цифру)" << endl << "1. Все данные участка" << endl << "2. Площадь участка" << endl << "3. Данные построек на этом участке" << endl;
+    char chooseUpdate{};
+    int chooseUpdateSection;
+    while (true)
+    {
+        cout << "Ответ: ";
+        cin >> chooseUpdate;
+        if (chooseUpdate == '1')
+        {
+            cout << "Какой участок из " << size(section) << " вы хотите обновить? ";
+            cin >> chooseUpdateSection;
+            section[chooseUpdateSection - 1].houses.clear();
+            section[chooseUpdateSection - 1].garages.clear();
+            section[chooseUpdateSection - 1].squareSection = 0;
+            Start(&section[chooseUpdateSection-1]);
+            return;
+        }
+        else if (chooseUpdate == '2')
+        {
+
+        }
+    }
+}
 
 int main()
 {
@@ -190,39 +237,44 @@ int main()
     cin >> quantitySectios;
     cin.ignore();
 
-    for (int i = 0; i < quantitySectios; i++)
+    StartSection(quantitySectios, generalSquare, section);
+    
+    char choose;
+    while (true)
     {
-        sectionClass *sectioni = new sectionClass;
-        cout << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
-        Start(sectioni);
-        section.push_back(*sectioni);
-        delete sectioni;
-    }
-
-    cout << endl << endl << "========Вывод========" << endl << endl;
-
-    for (int i = 0; i < size(section); i++)
-    {
-        
-        cout << endl << endl << "======== УЧАСТОК " << i+1 << " ========" << endl;
-        section[i].Print();
-
-    }
-
-    cout << endl << endl << endl << "======== Общая площадь ========" << endl;
-    for (int i = 0; i < size(section); i++)
-    {
-        for (int j = 0; j < size(section[i].houses); j++)
+        cout << endl << "---------------------" << endl << "Что вы хотите сделать? (Введите цифру)" << endl << "1. Изменить данные" << endl << "2. Удалить данные" << endl << "3. Показать данные" << endl << "4. Завершить работу" << endl << "---------------------" << endl;
+        cout << "Ответ: ";
+        cin >> choose; 
+        if (choose == '1') 
         {
-            generalSquare += section[i].houses[j].GetSquare();
+            UpdateSection(section, generalSquare);
         }
-        for (int j = 0; j < size(section[i].garages); j++)
+        else if (choose == '2')
         {
-            generalSquare += section[i].garages[j].GetSquare();
+
+        }
+        else if (choose == '3')
+        {
+            for (int i = 0; i < size(section); i++)
+            {
+
+                cout << endl << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
+                section[i].Print(generalSquare);
+            }
+            cout << endl << endl << endl << "======== Общая площадь ========" << endl;
+            cout << generalSquare << "м^2" << endl << endl;
+        }
+        else if (choose == '4')
+        {
+            return 0;
+        }
+        else
+        {
+            cout << endl << "Я не знаю такой команды" << endl;
+            continue;
         }
     }
-    cout << generalSquare << "м^2" << endl;
-
+    
 }
 
 
