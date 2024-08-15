@@ -24,36 +24,36 @@ enum room_type
 };
 
 
-class sectionClass 
+class sectionClass
 {
 
     friend void Start(sectionClass* value);
     friend void UpdateSection(vector<sectionClass>& section, int& generalSquare);
 
 protected:
-    
+
     int squareSection;
     int quantityBuildings;
     vector<building_type> buildingsOnSection;
-    
+
 public:
-    
+
     class houseClass
-    { 
+    {
         friend sectionClass;
-        
+
 
         vector<vector<room_type> > rooms;
         vector<int> heightRoof;
         vector<int> squareRooms;
         bool oven;
-        int squareHouse; 
+        int squareHouse;
         int quantityFloors;
         int quantityRooms;
 
     public:
         houseClass StartHouse(sectionClass* value);
-        
+
         void PrintHouse();
 
         int GetSquare()
@@ -61,7 +61,7 @@ public:
             return this->squareHouse;
         }
 
-        void operator = (const houseClass &other)
+        void operator = (const houseClass& other)
         {
             this->heightRoof = other.heightRoof;
             this->oven = other.oven;
@@ -81,7 +81,7 @@ public:
     public:
         garageClass StartGarage(sectionClass* value);
 
-        
+
 
         void PrintGarage();
 
@@ -116,7 +116,7 @@ public:
         int square;
     };
 
-    void Print(int &generalSquare)
+    void Print(int& generalSquare)
     {
         int quantityHouse{ 0 };
         int quantityGarage{ 0 };
@@ -131,34 +131,34 @@ public:
 
                 houses[quantityHouse].PrintHouse();
                 quantityHouse++;
-                
+
             }
             else if (buildingsOnSection[i] == building_type::Гараж)
             {
                 cout << "------- Гараж " << i + 1 << " -------" << endl;
 
                 garages[quantityGarage].PrintGarage();
-                quantityGarage+=1;
-            }        
+                quantityGarage += 1;
+            }
         }
-        
+
 
     }
 
-    
+
 public:
     sectionClass::houseClass* temp_house;
     sectionClass::garageClass* temp_garage;
     vector<houseClass> houses;
-    vector<garageClass> garages; 
-    friend houseClass; 
-     
+    vector<garageClass> garages;
+    friend houseClass;
+
 };
 
 
 
 
-void Start(sectionClass *value)
+void Start(sectionClass* value)
 {
 
     cout << "Постройки кол-во: ";
@@ -187,13 +187,13 @@ void Start(sectionClass *value)
                 cout << "Неверный ввод !!! Введите верную постройку: " << endl;
                 continue;
             }
-            
+
         }
-        
+
     }
 }
 
-void StartSection(int &quantitySections, int generalSquare, vector<sectionClass> &section)
+void StartSection(int& quantitySections, int generalSquare, vector<sectionClass>& section)
 {
     for (int i = 0; i < quantitySections; i++)
     {
@@ -216,7 +216,7 @@ void StartSection(int &quantitySections, int generalSquare, vector<sectionClass>
     cout << generalSquare << "м^2" << endl << endl;
 }
 
-void UpdateSection(vector<sectionClass> &section, int &generalSquare)
+void UpdateSection(vector<sectionClass>& section, int& generalSquare)
 {
     cout << "Что вы хотите обновить? (введите цифру)" << endl << "1. Все данные участка" << endl << "2. Данные постройки на этом участке" << endl;
     char chooseUpdate{};
@@ -232,9 +232,9 @@ void UpdateSection(vector<sectionClass> &section, int &generalSquare)
             section[chooseUpdateSection - 1].buildingsOnSection.clear();
             section[chooseUpdateSection - 1].houses.clear();
             section[chooseUpdateSection - 1].garages.clear();
-                                                                                //Баг
+            //Баг
             section[chooseUpdateSection - 1].squareSection = 0;
-            Start(&section[chooseUpdateSection-1]);
+            Start(&section[chooseUpdateSection - 1]);
             return;
         }
         else if (chooseUpdate == '2')
@@ -334,13 +334,13 @@ int main()
 
     vector<sectionClass> section;
     int quantitySectios;
-    int generalSquare{0};
+    int generalSquare{ 0 };
     cout << "Кол-во учатсков: ";
     cin >> quantitySectios;
     cin.ignore();
 
     StartSection(quantitySectios, generalSquare, section);
-    
+
     char choose;
     while (true)
     {
@@ -348,7 +348,7 @@ int main()
         cout << "Ответ: ";
         cin >> choose;
         cout << endl;
-        if (choose == '1') 
+        if (choose == '1')
         {
             UpdateSection(section, generalSquare);
         }
@@ -378,7 +378,7 @@ int main()
             continue;
         }
     }
-    
+
 }
 
 
@@ -386,10 +386,10 @@ int main()
 sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* value)
 {
     houseClass User_house;
-
+    
     cout << "Площадь: ";
     cin >> User_house.squareHouse;
-    
+
     string ovenInHouse_element;
     while (true)
     {
@@ -427,7 +427,7 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
     }
     User_house.rooms.resize(User_house.quantityFloors);
 
-    int heightRoof_element; 
+    int heightRoof_element;
     for (int i = 0; i < User_house.quantityFloors; i++)
     {
         cout << "Высота " << i + 1 << " этажа: ";
@@ -436,6 +436,7 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
     }
     for (int i = 0; i < User_house.quantityFloors; i++)
     {
+        int sumSquareRooms{ 0 };
         while (true)
         {
             cout << "Сколько комнат на " << i + 1 << " этаже? ";
@@ -455,7 +456,7 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
         int squareRoom_element;
         User_house.rooms[i].resize(User_house.quantityRooms);
         for (int j = 0; j < User_house.quantityRooms; j++)
-        {  
+        {
             while (true)
             {
                 cout << "Комната " << j + 1 << ": ";
@@ -485,20 +486,22 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
                     cout << "Я не знаю такой комнаты" << endl;
                     continue;
                 }
+
                 cout << "Площадь комнаты: ";
                 cin >> squareRoom_element;
-                if (squareRoom_element < 1)
+                if (squareRoom_element < 1 || squareRoom_element > User_house.squareHouse || sumSquareRooms + squareRoom_element > User_house.squareHouse || (j == User_house.quantityRooms - 2 && sumSquareRooms + squareRoom_element == User_house.squareHouse))
                 {
                     cout << "Неверное значение" << endl;
                     continue;
                 }
                 else
                 {
+                    sumSquareRooms += squareRoom_element;
                     User_house.squareRooms.push_back(squareRoom_element);
                     break;
                 }
-                
-            }   
+
+            }
         }
     }
     value->squareSection += User_house.squareHouse;
@@ -507,7 +510,7 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
 
 void sectionClass::houseClass::PrintHouse()
 {
- 
+
     int fromSquareVector{ 0 };
     cout << "Площадь дома: " << this->squareHouse << "м^2" << endl;
     if (this->oven)
@@ -544,12 +547,12 @@ void sectionClass::houseClass::PrintHouse()
             {
                 cout << "кухня";
             }
-            
+
             if (size(this->rooms[i]) - 1 == j)
             {
                 cout << "(" << this->squareRooms[fromSquareVector] << "м^2)";
             }
-            else 
+            else
             {
                 cout << "(" << this->squareRooms[fromSquareVector] << "м^2), ";
             }
@@ -565,7 +568,7 @@ sectionClass::garageClass sectionClass::garageClass::StartGarage(sectionClass* v
     cout << "Площадь: ";
     cin >> User_garage.squareGarage;
     value->squareSection += User_garage.squareGarage;
-    return User_garage; 
+    return User_garage;
 }
 
 void sectionClass::garageClass::PrintGarage()
