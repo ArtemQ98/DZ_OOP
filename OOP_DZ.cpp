@@ -5,6 +5,7 @@
 
 using namespace std;
 
+int MainTwo();
 
 enum building_type
 {
@@ -98,28 +99,50 @@ public:
 
     class shedClass
     {
-        int square;
+        int squareShed;
 
     public:
-        shedClass StartShed();
+        shedClass StartShed(sectionClass* value);
 
         void PrintShed();
 
         int GetSquare()
         {
-            return this->square;
+            return this->squareShed;
+        }
+
+        void operator = (const shedClass& other)
+        { 
+            this->squareShed = other.squareShed;
         }
     };
 
-    class saunaClass
+    class bathhouseClass
     {
-        int square;
+        int squareBathhouse;
+        bool oven_bathhouse;
+
+    public:
+
+        bathhouseClass StartBathhouse(sectionClass* value);
+        void PrintBathhouse();
+        int GetSquare()
+        {
+            return this->squareBathhouse;
+        }
+        void operator = (const bathhouseClass& other)
+        {
+            this->squareBathhouse = other.squareBathhouse;
+            this->oven_bathhouse = other.oven_bathhouse;
+        }
     };
 
     void Print(int& generalSquare)
     {
         int quantityHouse{ 0 };
         int quantityGarage{ 0 };
+        int quantityBathhouse{ 0 };
+        int quantityShed{ 0 };
         cout << "Площадь участка: " << squareSection << "м^2" << endl;
         generalSquare += squareSection;
         for (int i = 0; i < quantityBuildings; i++)
@@ -140,6 +163,20 @@ public:
                 garages[quantityGarage].PrintGarage();
                 quantityGarage += 1;
             }
+            else if (buildingsOnSection[i] == building_type::Баня)
+            {
+                cout << "------- Баня " << i + 1 << " -------" << endl;
+
+                bathhouses[quantityBathhouse].PrintBathhouse();
+                quantityBathhouse += 1;
+            }
+            else if (buildingsOnSection[i] == building_type::Сарай)
+            {
+                cout << "------- Сарай " << i + 1 << " -------" << endl;
+                 
+                sheds[quantityShed].PrintShed();
+                quantityShed += 1;
+            }
         }
 
 
@@ -149,8 +186,12 @@ public:
 public:
     sectionClass::houseClass* temp_house;
     sectionClass::garageClass* temp_garage;
+    sectionClass::bathhouseClass* temp_bathhouse;
+    sectionClass::shedClass* temp_shed;
     vector<houseClass> houses;
     vector<garageClass> garages;
+    vector<bathhouseClass> bathhouses;
+    vector<shedClass> sheds;
     friend houseClass;
 
 };
@@ -180,6 +221,18 @@ void Start(sectionClass* value)
             {
                 value->garages.push_back(value->temp_garage->StartGarage(value));
                 value->buildingsOnSection.push_back(building_type::Гараж);
+                break;
+            }
+            else if (build == "Баня" || build == "баня")
+            {
+                value->bathhouses.push_back(value->temp_bathhouse->StartBathhouse(value));
+                value->buildingsOnSection.push_back(building_type::Баня);
+                break;
+            }
+            else if (build == "Сарай" || build == "сарай")
+            {
+                value->sheds.push_back(value->temp_shed->StartShed(value));
+                value->buildingsOnSection.push_back(building_type::Сарай);
                 break;
             }
             else
@@ -218,7 +271,7 @@ void StartSection(int& quantitySections, int generalSquare, vector<sectionClass>
 
 void UpdateSection(vector<sectionClass>& section, int& generalSquare)
 {
-    cout << "Что вы хотите обновить? (введите цифру)" << endl << "1. Все данные участка" << endl << "2. Данные постройки на этом участке" << endl;
+    cout << "Что вы хотите обновить? (введите цифру)" << endl << "1. Все данные посёлка" << endl << "2. Все данные определённого участка" << endl << "3. Данные определённой постройки на определённом участке" << endl;
     char chooseUpdate{};
     int chooseUpdateSection;
     while (true)
@@ -227,50 +280,75 @@ void UpdateSection(vector<sectionClass>& section, int& generalSquare)
         cin >> chooseUpdate;
         if (chooseUpdate == '1')
         {
+            MainTwo();
+        }
+        else if (chooseUpdate == '2')
+        {
             cout << "Какой участок из " << size(section) << " вы хотите обновить? ";
             cin >> chooseUpdateSection;
             section[chooseUpdateSection - 1].buildingsOnSection.clear();
             section[chooseUpdateSection - 1].houses.clear();
             section[chooseUpdateSection - 1].garages.clear();
+            section[chooseUpdateSection - 1].bathhouses.clear();
+            section[chooseUpdateSection - 1].sheds.clear();
             //Баг
             section[chooseUpdateSection - 1].squareSection = 0;
             Start(&section[chooseUpdateSection - 1]);
             return;
         }
-        else if (chooseUpdate == '2')
+        else if (chooseUpdate == '3')
         {
             string chooseUpdateBuilding;
             int quantityHouses{ 0 };
             int quantityGarages{ 0 };
+            int quantityBathhouses{ 0 };
+            int quantitySheds{ 0 };
             while (true)
             {
-                cout << "На каком участке из " << size(section) << " вы хотите обновить данные постройки?";
-                cin >> chooseUpdateSection;
-                if (chooseUpdateSection < 1 || chooseUpdateSection > size(section))
+                if (size(section) == 1)
                 {
-                    cout << "Неверный номер участка" << endl;
-                    continue;
+                    chooseUpdateSection = 1;
                 }
                 else
                 {
-                    break;
+                    cout << "На каком участке из " << size(section) << " вы хотите обновить данные постройки?";
+                    cin >> chooseUpdateSection;
+                    if (chooseUpdateSection < 1 || chooseUpdateSection > size(section))
+                    {
+                        cout << "Неверный номер участка" << endl;
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
+                
             }
 
-            cout << "На вашем участке имеется: " << ": ";
+            cout << "На вашем участке имеется: " << ": " << endl;
             for (int i = 0; i < section[chooseUpdateSection - 1].quantityBuildings; i++)
             {
                 if (section[chooseUpdateSection - 1].buildingsOnSection[i] == building_type::Дом && quantityHouses == 0)
                 {
-                    cout << size(section[chooseUpdateSection - 1].houses) << " Дом(а/ов)" << endl;
+                    cout << "Дом " << "(" << size(section[chooseUpdateSection - 1].houses) << ")" << endl;
                     quantityHouses++;
                 }
                 else if (section[chooseUpdateSection - 1].buildingsOnSection[i] == building_type::Гараж && quantityGarages == 0)
                 {
-                    cout << size(section[chooseUpdateSection - 1].garages) << " Гараж(а/ей)" << endl;
+                    cout << "Гараж " << "(" << size(section[chooseUpdateSection - 1].garages) << ")" << endl;
                     quantityGarages++;
                 }
-                //Баня
+                else if (section[chooseUpdateSection - 1].buildingsOnSection[i] == building_type::Баня && quantityBathhouses == 0)
+                {
+                    cout << "Баня " << "(" << size(section[chooseUpdateSection - 1].bathhouses) << ")" << endl;
+                    quantityBathhouses++;
+                }
+                else if (section[chooseUpdateSection - 1].buildingsOnSection[i] == building_type::Сарай && quantitySheds == 0)
+                {
+                    cout << "Сарай " << "(" << size(section[chooseUpdateSection - 1].sheds) << ")" << endl;
+                    quantitySheds++;
+                }
             }
             cout << "Введите название постройки (Дом, гараж и тд.): ";
             cin >> chooseUpdateBuilding;
@@ -316,24 +394,75 @@ void UpdateSection(vector<sectionClass>& section, int& generalSquare)
                     return;
                 }
             }
+            else if (chooseUpdateBuilding == "Баня" || chooseUpdateBuilding == "баня")
+            {
+                int chooseUpdateBathhouse{ 0 };
+                if (size(section[chooseUpdateSection - 1].bathhouses) > 1)
+                {
+                    for (int i = 0; i < size(section[chooseUpdateSection - 1].bathhouses); i++)
+                    {
+                        cout << "Какую из " << size(section[chooseUpdateSection - 1].bathhouses) << " бань вы хотите изменить? (Введите цифру): ";
+                        cin >> chooseUpdateBathhouse;
+                        section[chooseUpdateSection - 1].squareSection -= section[chooseUpdateSection - 1].bathhouses[chooseUpdateBathhouse - 1].GetSquare();
+                        section[chooseUpdateSection - 1].bathhouses[chooseUpdateBathhouse - 1] = section[chooseUpdateSection - 1].temp_bathhouse->StartBathhouse(&section[chooseUpdateSection - 1]);
+                        return;
+                    }
+                }
+                else
+                {
+                    section[chooseUpdateSection - 1].squareSection -= section[chooseUpdateSection - 1].bathhouses[0].GetSquare();
+                    section[chooseUpdateSection - 1].bathhouses[0] = section[chooseUpdateSection - 1].temp_bathhouse->StartBathhouse(&section[chooseUpdateSection - 1]);
+                    return;
+                }
+            }
+            else if (chooseUpdateBuilding == "Сарай" || chooseUpdateBuilding == "сарай")
+            {
+                int chooseUpdateShed{ 0 };
+                if (size(section[chooseUpdateSection - 1].sheds) > 1)
+                {
+                    for (int i = 0; i < size(section[chooseUpdateSection - 1].sheds); i++)
+                    {
+                        cout << "Какой из " << size(section[chooseUpdateSection - 1].sheds) << " сараев вы хотите изменить? (Введите цифру): ";
+                        cin >> chooseUpdateShed;
+                        section[chooseUpdateSection - 1].squareSection -= section[chooseUpdateSection - 1].sheds[chooseUpdateShed - 1].GetSquare();
+                        section[chooseUpdateSection - 1].sheds[chooseUpdateShed - 1] = section[chooseUpdateSection - 1].temp_shed->StartShed(&section[chooseUpdateSection - 1]);
+                        return;
+                    }
+                }
+                else
+                {
+                    section[chooseUpdateSection - 1].squareSection -= section[chooseUpdateSection - 1].sheds[0].GetSquare();
+                    section[chooseUpdateSection - 1].sheds[0] = section[chooseUpdateSection - 1].temp_shed->StartShed(&section[chooseUpdateSection - 1]);
+                    return;
+                }
+            }
 
             else
             {
-                cout << "Я не знаю такой команды" << endl;
+                cout << "Я не знаю такой постройки" << endl;
             }
+        }
+        else
+        {
+            cout << "Я не знаю такой команды" << endl;
         }
     }
 }
 
-int main()
+void AddSection(vector<sectionClass>& section, int &quantitySectios)
 {
-    setlocale(LC_ALL, "Ru");
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
+    quantitySectios++;
+    sectionClass* sectioni = new sectionClass;
+    cout << endl << "======== УЧАСТОК " << quantitySectios << " ========" << endl;
+    Start(sectioni);
+    section.push_back(*sectioni);
+    delete sectioni;
+}
 
-
+int MainTwo()
+{
     vector<sectionClass> section;
-    int quantitySectios;
+    int quantitySectios{ 0 };
     int generalSquare{ 0 };
     cout << "Кол-во учатсков: ";
     cin >> quantitySectios;
@@ -344,7 +473,7 @@ int main()
     char choose;
     while (true)
     {
-        cout << endl << "---------------------" << endl << "Что вы хотите сделать? (Введите цифру)" << endl << "1. Изменить данные" << endl << "2. Удалить данные" << endl << "3. Показать данные" << endl << "4. Завершить работу" << endl << "---------------------" << endl;
+        cout << endl << "---------------------" << endl << "Что вы хотите сделать? (Введите цифру)" << endl << "1. Изменить данные" << endl << "2. Удалить определённый участок" << endl << "3. Добавить участок" << endl << "4. Показать данные" << endl << "5. Завершить работу" << endl << "---------------------" << endl;
         cout << "Ответ: ";
         cin >> choose;
         cout << endl;
@@ -354,21 +483,31 @@ int main()
         }
         else if (choose == '2')
         {
-
+            int chooseDeleteSection{0};
+            cout << "Какой участок вы хотите удалить из " << size(section) << "? (Введите цифру: )";
+            cin >> chooseDeleteSection;
+            section.erase(section.begin() + (chooseDeleteSection-1));
+        
         }
         else if (choose == '3')
+        {
+            AddSection(section, quantitySectios);
+            
+
+        }
+        else if (choose == '4')
         {
             generalSquare = 0;
             for (int i = 0; i < size(section); i++)
             {
 
-                cout << endl << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
+                cout << endl << endl << endl << endl << "======== УЧАСТОК " << i + 1 << " ========" << endl;
                 section[i].Print(generalSquare);
             }
             cout << endl << endl << endl << "======== Общая площадь ========" << endl;
             cout << generalSquare << "м^2" << endl << endl;
         }
-        else if (choose == '4')
+        else if (choose == '5')
         {
             return 0;
         }
@@ -378,6 +517,16 @@ int main()
             continue;
         }
     }
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Ru");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    MainTwo();
+    
 
 }
 
@@ -387,8 +536,22 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
 {
     houseClass User_house;
     
-    cout << "Площадь: ";
-    cin >> User_house.squareHouse;
+    
+    while (true)
+    {
+        cout << "Площадь дома: ";
+        cin >> User_house.squareHouse;
+        if (User_house.squareHouse < 1)
+        {
+            cout << "Неверное значение" << endl;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+    
 
     string ovenInHouse_element;
     while (true)
@@ -461,23 +624,23 @@ sectionClass::houseClass sectionClass::houseClass::StartHouse(sectionClass* valu
             {
                 cout << "Комната " << j + 1 << ": ";
                 cin >> room;
-                if (room == "спальня")
+                if (room == "Спальня" || room == "спальня")
                 {
                     User_house.rooms[i][j] = room_type::спальня;
                 }
-                else if (room == "ванная")
+                else if (room == "Ванная" || room == "ванная")
                 {
                     User_house.rooms[i][j] = room_type::ванная;
                 }
-                else if (room == "гостиная")
+                else if (room == "Гостинная" || room == "гостиная")
                 {
                     User_house.rooms[i][j] = room_type::гостиная;
                 }
-                else if (room == "детская")
+                else if (room == "Детская" || room == "детская")
                 {
                     User_house.rooms[i][j] = room_type::детская;
                 }
-                else if (room == "кухня")
+                else if (room == "Кухня" || room == "кухня")
                 {
                     User_house.rooms[i][j] = room_type::кухня;
                 }
@@ -565,13 +728,109 @@ void sectionClass::houseClass::PrintHouse()
 sectionClass::garageClass sectionClass::garageClass::StartGarage(sectionClass* value)
 {
     garageClass User_garage;
-    cout << "Площадь: ";
-    cin >> User_garage.squareGarage;
+    while (true)
+    {
+        cout << "Площадь гаража: ";
+        cin >> User_garage.squareGarage;
+        if (User_garage.squareGarage < 1)
+        {
+            cout << "Неверное значение" << endl;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+    
     value->squareSection += User_garage.squareGarage;
     return User_garage;
 }
 
 void sectionClass::garageClass::PrintGarage()
 {
-    cout << "Площадь гаража: " << this->squareGarage << endl;
+    cout << "Площадь гаража: " << this->squareGarage << "м^2" << endl;
+}
+
+sectionClass::bathhouseClass sectionClass::bathhouseClass::StartBathhouse(sectionClass* value)
+{
+
+    bathhouseClass User_Bathhouse;
+    
+    while (true)
+    {
+        cout << "Площадь бани: ";
+        cin >> User_Bathhouse.squareBathhouse;
+        if (User_Bathhouse.squareBathhouse < 1)
+        {
+            cout << "Неверное значение" << endl;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    string ovenInBathhouse_element;
+    while (true)
+    {
+        cout << "Имеется ли у вас печь с трубой в бане? (да/нет): ";
+        cin >> ovenInBathhouse_element;
+        if (ovenInBathhouse_element == "Да" || ovenInBathhouse_element == "да")
+        {
+            User_Bathhouse.oven_bathhouse = true;
+            break;
+        }
+        else if (ovenInBathhouse_element == "Нет" || ovenInBathhouse_element == "нет")
+        {
+            User_Bathhouse.oven_bathhouse = false;
+            break;
+        }
+        else
+        {
+            cout << "Я не знаю такого ответа" << endl;
+            continue;
+        }
+    }
+    
+    value->squareSection += User_Bathhouse.squareBathhouse;
+    return User_Bathhouse;
+}
+
+void sectionClass::bathhouseClass::PrintBathhouse()
+{
+    cout << "Площадь бани: " << this->squareBathhouse << "м^2" << endl;
+    if (this->oven_bathhouse)
+    {
+        cout << "В бане имеется печь с трубой" << endl;
+    }
+}
+
+sectionClass::shedClass sectionClass::shedClass::StartShed(sectionClass* value)
+{
+    shedClass User_shed;
+
+    while (true)
+    {
+        cout << "Площадь сарая: ";
+        cin >> User_shed.squareShed;
+        if (User_shed.squareShed < 1)
+        {
+            cout << "Неверное значение" << endl;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+    
+    value->squareSection += User_shed.squareShed;
+    return User_shed;
+}
+
+void sectionClass::shedClass::PrintShed()
+{
+    cout << "Площадь сарая: " << this->squareShed << "м^2" << endl;
 }
